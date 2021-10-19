@@ -1,0 +1,92 @@
+name: Build Binaries and Populate a Release
+
+# Run a build when a new release is created (in draft mode)
+on:
+  release:
+    types: [created]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: getDocker
+      run: |
+        git clone -b ${GITHUB_REF#refs/*/} https://github.com/docker/cli.git .
+
+    - name: Build darwin
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=darwin/amd64"
+
+    - name: Build linux
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=linux/amd64"
+
+    - name: Build on Windows
+      run: |
+        if ! docker buildx bake --set binary.platform=windows/amd64 ; then
+          echo "
+        Applying the tiborvass workaround...
+        "
+          # Apply this patch
+          curl https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary > scripts/build/binary
+          # And munge the git checkout so the version doesn't appear with a ".m"
+          # `git commit` wants this info, but it isn't going anywhere
+          git config --global user.email "nobody@example.com"
+          git config --global user.name "Yma Sumac"
+          git add scripts/build/binary
+          git commit -m "Applying the tiborvass workaround"
+          git tag -d ${GITHUB_REF#refs/*/}
+          git tag ${GITHUB_REF#refs/*/}
+          docker buildx bake --set binary.platform=windows/amd64
+        fi
+
+    - name:  Calc SHAs
+      working-directory: "./build"
+      run: sha256sum docker-* > sha256sum.txt
+
+    - uses: actions/upload-artifact@v2
+      name: Upload artifacts
+      with:
+        name: docker-darwin-amd64
+        path: ./build/docker-darwin-amd64
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload artifacts
+      with:
+        name: docker-linux-amd64
+        path: ./build/docker-linux-amd64
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload artifacts
+      with:
+        name: docker-windows-amd64
+        path: ./build/docker-windows-amd64.exe
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload checksums
+      with:
+        name: sha256sum.txt
+        path: ./build/sha256sum.txt
+        if-no-files-found: error
+
+    - name: Add binaries to the release
+      uses: skx/github-action-publish-binaries@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: './build/docker-* ./build/sha256sum.txt'
