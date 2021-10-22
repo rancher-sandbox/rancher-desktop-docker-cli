@@ -3,19 +3,13 @@ Repo for building and releasing the Docker CLI for different platforms.
 
 To create a populated release:
 
-Get the tag of the docker CLI release you want to build on the CLI, e.g. "v20.10.10"
+Get the tag of the docker CLI release you want to build, e.g. "v20.10.10" (called `TAG`)
 
-```bash
-git tag v20.10.10
-git push origin v20.10.10
-```
 Then go to https://github.com/rancher-sandbox/rancher-desktop-docker-cli/releases
-and create a new release, with the following info:
-
-Choose the tag (TAG) you just pushed.
+and create a new release, and tell it to create the tag `TAG`.
 
 Set the title and description to `Docker CLI builds for docker TAG`
 
-Publish the release.
-
-The github actions CI will build the binaries and populate the release.
+Publish the release. This has to be a final release, not a draft release,
+so for a while it will be visible without the associated binaries
+until the github actions build, upload, and attach them.
