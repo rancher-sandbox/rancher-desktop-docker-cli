@@ -4,6 +4,7 @@ name: Build Binaries and Populate a Release
 on:
   release:
     types: [created]
+  pull_request: {}
 
 defaults:
   run:
