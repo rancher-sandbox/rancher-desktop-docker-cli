@@ -36,24 +36,22 @@ jobs:
       with:
         set: "binary.platform=linux/amd64"
 
-    - name: Build on Windows
+    - name: Check for Windows Fix from April, 2021
       run: |
-        if ! docker buildx bake --set binary.platform=windows/amd64 ; then
+        if !git merge-base --is-ancestor 04dad42c3c HEAD ; then
           echo "
-        Applying the tiborvass workaround...
+        Applying the tiborvass fix (should be merged in v21+) ...
         "
-          # Apply this patch
-          curl https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary > scripts/build/binary
-          # And munge the git checkout so the version doesn't appear with a ".m"
-          # `git commit` wants this info, but it isn't going anywhere
-          git config --global user.email "nobody@example.com"
-          git config --global user.name "Yma Sumac"
-          git add scripts/build/binary
-          git commit -m "Applying the tiborvass workaround"
-          git tag -d ${GITHUB_REF#refs/*/}
-          git tag ${GITHUB_REF#refs/*/}
-          docker buildx bake --set binary.platform=windows/amd64
+          # Pull in the fixed file
+          curl -o scripts/build/binary https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary
+          # Tell git this file isn't dirty to avoid a `.m` version
+          git update-index --assume-unchanged scripts/build/binary
         fi
+
+    - name: Build on Windows
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=windows/amd64"
 
     - name:  Calc SHAs
       working-directory: "./build"
