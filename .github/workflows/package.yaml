@@ -20,8 +20,11 @@ jobs:
       uses: docker/setup-buildx-action@v1
 
     - name: getDocker
-      run: |
-        git clone -b ${GITHUB_REF#refs/*/} https://github.com/docker/cli.git .
+      uses: actions/checkout@v2
+      with:
+        repository: docker/cli
+        ref: ${{ github.ref }}
+        persist-credentials: false
 
     - name: Build darwin
       uses: docker/bake-action@v1
