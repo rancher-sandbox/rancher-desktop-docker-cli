@@ -86,7 +86,7 @@ jobs:
         if-no-files-found: error
 
     - name: Add binaries to the release
-      uses: skx/github-action-publish-binaries@master
+      uses: skx/github-action-publish-binaries@b9ca5643b2f1d7371a6cba7f35333f1461bbc703
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
