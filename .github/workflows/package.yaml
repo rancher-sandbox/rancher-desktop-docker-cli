@@ -41,7 +41,7 @@ jobs:
 
     - name: Check for Windows Fix from April, 2021
       run: |
-        if !git merge-base --is-ancestor 04dad42c3c HEAD ; then
+        if ! git merge-base --is-ancestor 04dad42c3c HEAD ; then
           echo "
         Applying the tiborvass fix (should be merged in v21+) ...
         "
@@ -88,7 +88,9 @@ jobs:
         path: ./build/sha256sum.txt
         if-no-files-found: error
 
+    # Do this only for new releases
     - name: Add binaries to the release
+      if: ${{ github.event.release }}
       uses: skx/github-action-publish-binaries@b9ca5643b2f1d7371a6cba7f35333f1461bbc703
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
