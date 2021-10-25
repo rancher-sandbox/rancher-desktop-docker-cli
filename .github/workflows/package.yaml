@@ -91,17 +91,9 @@ jobs:
         path: ./build/sha256sum.txt
         if-no-files-found: error
 
-    - name: Remove VERSION field from $GITHUB_ENV
-      run: |
-        sed -i '/^VERSION=/d' $GITHUB_ENV
-        echo "Here's the env file $GITHUB_ENV after:"
-        echo ==========
-        cat $GITHUB_ENV
-        echo ==========
-
     - name: Add artifacts to the release
       uses: skx/github-action-publish-binaries@b9ca5643b2f1d7371a6cba7f35333f1461bbc703
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        args: './build/docker-darwin-amd64 ./build/docker-linux-amd64 ./build/docker-windows-amd64.exe ./build/sha256sum.txt'
+        args: './build/docker-* ./build/sha256sum.txt'
