@@ -60,7 +60,7 @@ jobs:
       with:
         set: "binary.platform=windows/amd64"
 
-    - name:  Calc SHAs
+    - name:  Calculate Checksums
       working-directory: "./build"
       run: sha256sum docker-* > sha256sum.txt
 
