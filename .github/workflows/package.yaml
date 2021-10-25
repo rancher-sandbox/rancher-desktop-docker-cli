@@ -40,7 +40,7 @@ jobs:
       #TODO: Use this workaround until https://github.com/docker/cli/pull/3349 is merged to master
       # Reinstate the `with...set:` parts afterwards.
       run: |
-        VERSION="${GITHUB_REF#v}" docker buildx bake darwin/amd64
+        VERSION="${GITHUB_REF#v}" docker buildx bake  --set binary.platform=darwin/amd64
       # uses: docker/bake-action@v1
       # with:
       #   set: "binary.platform=darwin/amd64"
@@ -48,7 +48,7 @@ jobs:
     - name: Build linux
       # See above workaround
       run: |
-        VERSION="${GITHUB_REF#v}" docker buildx bake linux/amd64
+        VERSION="${GITHUB_REF#v}" docker buildx bake  --set binary.platform=linux/amd64
       # uses: docker/bake-action@v1
       # with:
       #   set: "binary.platform=linux/amd64"
@@ -67,7 +67,7 @@ jobs:
     - name: Build on Windows
       # See above workaround
       run: |
-        VERSION="${GITHUB_REF#v}" docker buildx bake windows/amd64
+        VERSION="${GITHUB_REF#v}" docker buildx bake  --set binary.platform=windows/amd64
       # uses: docker/bake-action@v1
       # with:
       #   set: "binary.platform=windows/amd64"
