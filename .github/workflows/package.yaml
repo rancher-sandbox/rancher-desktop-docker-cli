@@ -11,8 +11,8 @@ defaults:
     shell: bash
 
 # The step that populates the release needs write permission on the contents
-#permissions:
-#  contents: write
+permissions:
+  contents: write
 
 jobs:
   build:
