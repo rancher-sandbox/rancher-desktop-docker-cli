@@ -48,9 +48,7 @@ jobs:
     - name: Check for Windows Fix from April, 2021
       run: |
         if ! git merge-base --is-ancestor 04dad42c3c HEAD ; then
-          echo "
-        Applying the tiborvass fix (should be merged in v21+) ...
-        "
+          printf "\nApplying docker/cli#3048 (should be merged in v21+) ...\n"
           # Pull in the fixed file
           curl --silent --output scripts/build/binary https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary
           # Tell git this file isn't dirty to avoid a `.m` version
