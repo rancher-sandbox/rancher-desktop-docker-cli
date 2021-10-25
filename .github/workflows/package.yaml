@@ -1,14 +1,10 @@
 name: Build Binaries and Populate a Release
 
 # Run a build when a new release is created and published
-# This can be tested by pushing a tag.
 # PRs aren't triggered because there's no variable with the associated tag in a PR
 on:
   release:
     types: [created]
-  push:
-    tags:
-      - '*'
 
 defaults:
   run:
@@ -104,9 +100,7 @@ jobs:
         path: ./build/sha256sum.txt
         if-no-files-found: error
 
-    # Do this only for new releases
     - name: Add artifacts to the release
-      if: github.event.release
       uses: skx/github-action-publish-binaries@b9ca5643b2f1d7371a6cba7f35333f1461bbc703
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
