@@ -41,17 +41,17 @@ jobs:
       # Reinstate the `with...set:` parts afterwards.
       run: |
         VERSION="${GITHUB_REF#v}" docker bake buildx darwin/amd64
-#      uses: docker/bake-action@v1
-#      with:
-#        set: "binary.platform=darwin/amd64"
+      # uses: docker/bake-action@v1
+      # with:
+      #   set: "binary.platform=darwin/amd64"
 
     - name: Build linux
       # See above workaround
       run: |
         VERSION="${GITHUB_REF#v}" docker bake buildx linux/amd64
-#      uses: docker/bake-action@v1
-#      with:
-#        set: "binary.platform=linux/amd64"
+      # uses: docker/bake-action@v1
+      # with:
+      #   set: "binary.platform=linux/amd64"
 
     - name: Check for Windows Fix from April, 2021
       run: |
@@ -61,16 +61,16 @@ jobs:
           curl --silent --output scripts/build/binary https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary
           # Tell git this file isn't dirty to avoid a `.m` version
           # Not needed while VERSION is set explicitly:
-#          git update-index --assume-unchanged scripts/build/binary
+          # git update-index --assume-unchanged scripts/build/binary
         fi
 
     - name: Build on Windows
       # See above workaround
       run: |
         VERSION="${GITHUB_REF#v}" docker bake buildx windows/amd64
-#      uses: docker/bake-action@v1
-#      with:
-#        set: "binary.platform=windows/amd64"
+      # uses: docker/bake-action@v1
+      # with:
+      #   set: "binary.platform=windows/amd64"
 
     - name:  Calculate Checksums
       working-directory: "./build"
