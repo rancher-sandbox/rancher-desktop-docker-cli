@@ -33,6 +33,7 @@ jobs:
     - name: Build darwin
       #TODO: Use this workaround until https://github.com/docker/cli/pull/3349 is merged to master
       # Reinstate the `with...set:` parts afterwards.
+      # The VERSION assignment is from https://github.com/docker/cli/blob/e57b5f78de635e6e2b688686d10b830c4747c4dc/scripts/build/.variables#L7
       run: |
         VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags | sed 's/^v//' 2>/dev/null || echo "unknown-version" )} docker buildx bake  --set binary.platform=darwin/amd64
       # uses: docker/bake-action@v1
