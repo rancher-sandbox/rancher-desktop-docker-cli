@@ -23,27 +23,35 @@ jobs:
     strategy:
       fail-fast: false
     runs-on: ubuntu-latest
+    env:
+      VERSION: "${GITHUB_REF#v}"
 
     steps:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: getDocker
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
       with:
         repository: docker/cli
         ref: ${{ github.ref }}
         persist-credentials: false
 
     - name: Build darwin
-      uses: docker/bake-action@v1
-      with:
-        set: "binary.platform=darwin/amd64"
+      #TODO: Use this workaround until https://github.com/docker/cli/pull/3349 is merged to master
+      # Reinstate the `with...set:` parts afterwards.
+      run: |
+        VERSION="${GITHUB_REF#v}" docker bake buildx darwin/amd64
+#      uses: docker/bake-action@v1
+#      with:
+#        set: "binary.platform=darwin/amd64"
 
     - name: Build linux
-      uses: docker/bake-action@v1
-      with:
-        set: "binary.platform=linux/amd64"
+      # See above workaround
+      run: |
+        VERSION="${GITHUB_REF#v}" docker bake buildx linux/amd64
+#      uses: docker/bake-action@v1
+#      with:
+#        set: "binary.platform=linux/amd64"
 
     - name: Check for Windows Fix from April, 2021
       run: |
@@ -52,13 +60,17 @@ jobs:
           # Pull in the fixed file
           curl --silent --output scripts/build/binary https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary
           # Tell git this file isn't dirty to avoid a `.m` version
-          git update-index --assume-unchanged scripts/build/binary
+          # Not needed while VERSION is set explicitly:
+#          git update-index --assume-unchanged scripts/build/binary
         fi
 
     - name: Build on Windows
-      uses: docker/bake-action@v1
-      with:
-        set: "binary.platform=windows/amd64"
+      # See above workaround
+      run: |
+        VERSION="${GITHUB_REF#v}" docker bake buildx windows/amd64
+#      uses: docker/bake-action@v1
+#      with:
+#        set: "binary.platform=windows/amd64"
 
     - name:  Calculate Checksums
       working-directory: "./build"
