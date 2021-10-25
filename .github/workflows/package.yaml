@@ -30,42 +30,38 @@ jobs:
         ref: ${{ github.ref }}
         persist-credentials: false
 
-    - name: Build darwin
-      #TODO: Use this workaround until https://github.com/docker/cli/pull/3349 is merged to master
-      # Reinstate the `with...set:` parts afterwards.
-      # The VERSION assignment is from https://github.com/docker/cli/blob/e57b5f78de635e6e2b688686d10b830c4747c4dc/scripts/build/.variables#L7
+    # Workaround the "dirty version bug" in https://github.com/docker/cli/pull/3349
+    # The assignment is from https://github.com/docker/cli/blob/e57b5f78de635e6e2b688686d10b830c4747c4dc/scripts/build/.variables#L7
+    - name: Override CLI Version
       run: |
-        VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags | sed 's/^v//' 2>/dev/null || echo "unknown-version" )} docker buildx bake  --set binary.platform=darwin/amd64
-      # uses: docker/bake-action@v1
-      # with:
-      #   set: "binary.platform=darwin/amd64"
+        VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags | sed 's/^v//' 2>/dev/null)}
+        if [ -n "$VERSION" ] ; then
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        fi
+
+    - name: Build darwin
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=darwin/amd64"
 
     - name: Build linux
-      # See above workaround
-      run: |
-        VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags | sed 's/^v//' 2>/dev/null || echo "unknown-version" )} docker buildx bake  --set binary.platform=linux/amd64
-      # uses: docker/bake-action@v1
-      # with:
-      #   set: "binary.platform=linux/amd64"
+      uses: docker/bake-action@v1
+      with:
+       set: "binary.platform=linux/amd64"
 
+    #TODO: Remove this block once we start using docker v21 (or whatever version contains the fix)
     - name: Check for Windows Fix from April, 2021
       run: |
         if ! git merge-base --is-ancestor 04dad42c3c HEAD ; then
           printf "\nApplying docker/cli#3048 (should be merged in v21+) ...\n"
           # Pull in the fixed file
           curl --silent --output scripts/build/binary https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary
-          # Tell git this file isn't dirty to avoid a `.m` version
-          # Not needed while VERSION is set explicitly:
-          # git update-index --assume-unchanged scripts/build/binary
         fi
 
     - name: Build on Windows
-      # See above workaround
-      run: |
-        VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags | sed 's/^v//' 2>/dev/null || echo "unknown-version" )} docker buildx bake  --set binary.platform=windows/amd64
-      # uses: docker/bake-action@v1
-      # with:
-      #   set: "binary.platform=windows/amd64"
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=windows/amd64"
 
     - name:  Calculate Checksums
       working-directory: "./build"
