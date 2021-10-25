@@ -66,21 +66,21 @@ jobs:
       run: sha256sum docker-* > sha256sum.txt
 
     - uses: actions/upload-artifact@v2
-      name: Upload artifacts
+      name: Upload Darwin artifact
       with:
         name: docker-darwin-amd64
         path: ./build/docker-darwin-amd64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
-      name: Upload artifacts
+      name: Upload Linux artifact
       with:
         name: docker-linux-amd64
         path: ./build/docker-linux-amd64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
-      name: Upload artifacts
+      name: Upload Windows artifact
       with:
         name: docker-windows-amd64
         path: ./build/docker-windows-amd64.exe
@@ -94,7 +94,7 @@ jobs:
         if-no-files-found: error
 
     # Do this only for new releases
-    - name: Add binaries to the release
+    - name: Add artifacts to the release
       if: ${{ github.event.release }}
       uses: skx/github-action-publish-binaries@b9ca5643b2f1d7371a6cba7f35333f1461bbc703
       env:
