@@ -1,0 +1,99 @@
+name: Build Binaries and Populate a Release
+
+# Run a build when a new release is created and published
+# PRs aren't triggered because there's no variable with the associated tag in a PR
+on:
+  release:
+    types: [created]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - uses: actions/checkout@v2
+      with:
+        repository: docker/cli
+        ref: ${{ github.ref }}
+        persist-credentials: false
+
+    # Workaround the "dirty version bug" in https://github.com/docker/cli/pull/3349
+    # The assignment is from https://github.com/docker/cli/blob/e57b5f78de635e6e2b688686d10b830c4747c4dc/scripts/build/.variables#L7
+    - name: Override CLI Version
+      run: |
+        VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags | sed 's/^v//' 2>/dev/null)}
+        if [ -n "$VERSION" ] ; then
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+        fi
+
+    - name: Build darwin
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=darwin/amd64"
+
+    - name: Build linux
+      uses: docker/bake-action@v1
+      with:
+       set: "binary.platform=linux/amd64"
+
+    #TODO: Remove this block once we start using docker v21 (or whatever version contains the fix)
+    - name: Check for Windows Fix from April, 2021
+      run: |
+        if ! git merge-base --is-ancestor 04dad42c3c HEAD ; then
+          printf "\nApplying docker/cli#3048 (should be merged in v21+) ...\n"
+          # Pull in the fixed file
+          curl --silent --output scripts/build/binary https://raw.githubusercontent.com/tiborvass/cli/83e9eeb8a08abd04a357c32f5fbf94129f569c71/scripts/build/binary
+        fi
+
+    - name: Build on Windows
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=windows/amd64"
+
+    - name:  Calculate Checksums
+      working-directory: "./build"
+      run: sha256sum docker-* > sha256sum.txt
+
+    - uses: actions/upload-artifact@v2
+      name: Upload Darwin artifact
+      with:
+        name: docker-darwin-amd64
+        path: ./build/docker-darwin-amd64
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload Linux artifact
+      with:
+        name: docker-linux-amd64
+        path: ./build/docker-linux-amd64
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload Windows artifact
+      with:
+        name: docker-windows-amd64
+        path: ./build/docker-windows-amd64.exe
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload checksums
+      with:
+        name: sha256sum.txt
+        path: ./build/sha256sum.txt
+        if-no-files-found: error
+
+    - name: Add artifacts to the release
+      uses: skx/github-action-publish-binaries@b9ca5643b2f1d7371a6cba7f35333f1461bbc703
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: './build/docker-* ./build/sha256sum.txt'
