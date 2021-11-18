@@ -35,10 +35,15 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
         fi
 
-    - name: Build darwin
+    - name: Build darwin amd64
       uses: docker/bake-action@v1
       with:
         set: "binary.platform=darwin/amd64"
+
+    - name: Build darwin arm64
+      uses: docker/bake-action@v1
+      with:
+        set: "binary.platform=darwin/arm64"
 
     - name: Build linux
       uses: docker/bake-action@v1
@@ -64,10 +69,17 @@ jobs:
       run: sha256sum docker-* > sha256sum.txt
 
     - uses: actions/upload-artifact@v2
-      name: Upload Darwin artifact
+      name: Upload Darwin amd64 artifact
       with:
         name: docker-darwin-amd64
         path: ./build/docker-darwin-amd64
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload Darwin arm64 artifact
+      with:
+        name: docker-darwin-arm64
+        path: ./build/docker-darwin-arm64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
