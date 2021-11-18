@@ -10,6 +10,9 @@ defaults:
   run:
     shell: bash
 
+env:
+  DOCKER_CLI_REF: v20.10.9
+
 jobs:
   build:
     strategy:
@@ -23,7 +26,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         repository: docker/cli
-        ref: ${{ github.ref }}
+        ref: ${{ env.DOCKER_CLI_REF }}
         persist-credentials: false
 
     # Workaround the "dirty version bug" in https://github.com/docker/cli/pull/3349
