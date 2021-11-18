@@ -1,10 +1,8 @@
-name: Build Binaries and Populate a Release
+name: Build binaries and create a draft release
 
-# Run a build when a new release is created and published
-# PRs aren't triggered because there's no variable with the associated tag in a PR
 on:
-  release:
-    types: [created]
+  push:
+    tags: ['*']
 
 defaults:
   run:
@@ -106,9 +104,15 @@ jobs:
         path: ./build/sha256sum.txt
         if-no-files-found: error
 
-    - name: Add artifacts to the release
-      uses: skx/github-action-publish-binaries@b9ca5643b2f1d7371a6cba7f35333f1461bbc703
+    - name: Create draft release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        args: './build/docker-* ./build/sha256sum.txt'
+        ref: ${{ steps.ref.outputs.ref }}
+      run: >-
+        gh release create
+        "${ref}"
+        ./build/docker-*
+        ./build/sha256sum.txt
+        --draft
+        --title "${tag}"
+        --repo ${{ github.repository }}
