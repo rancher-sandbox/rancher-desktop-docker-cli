@@ -10,7 +10,6 @@ defaults:
 
 env:
   DOCKER_CLI_REF: v20.10.16
-  LDFLAGS:
 
 jobs:
   build:
