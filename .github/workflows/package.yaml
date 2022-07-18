@@ -9,7 +9,7 @@ defaults:
     shell: bash
 
 env:
-  DOCKER_CLI_REF: v20.10.16
+  DOCKER_CLI_REF: v20.10.17
 
 jobs:
   build:
