@@ -3,13 +3,16 @@ name: Build binaries and create a draft release
 on:
   push:
     tags: ['*']
+  workflow_dispatch:
+    inputs:
+      TAG:
+        description: Docker CLI tag to build
+        required: true
+        default: v20.10.17
 
 defaults:
   run:
     shell: bash
-
-env:
-  DOCKER_CLI_REF: v20.10.17
 
 jobs:
   build:
@@ -17,93 +20,151 @@ jobs:
       fail-fast: false
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
+    defaults:
+      run:
+        working-directory: cli
 
-    - uses: actions/checkout@v2
+    steps:
+    - name: Set Docker CLI tag from tag
+      if: startsWith(github.event.ref, 'refs/tags/')
+      run: |
+        DOCKER_CLI_REF="${{ github.event.ref }}"
+        echo "DOCKER_CLI_REF=${DOCKER_CLI_REF#refs/tags/}" >> "${GITHUB_ENV}"
+      working-directory: .
+
+    - name: Set Docker CLI tag from inputs
+      if: inputs.TAG
+      run: echo "DOCKER_CLI_REF=${{ inputs.TAG }}" >> "${GITHUB_ENV}"
+      working-directory: .
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Check out build scripts
+      uses: actions/checkout@v3
+      with:
+        persist-credentials: false
+        path: rancher-desktop-docker-cli
+
+    - name: Check out docker/cli
+      uses: actions/checkout@v3
       with:
         repository: docker/cli
         ref: ${{ env.DOCKER_CLI_REF }}
         persist-credentials: false
+        path: cli
 
-    # Workaround the "dirty version bug" in https://github.com/docker/cli/pull/3349
-    # The assignment is from https://github.com/docker/cli/blob/e57b5f78de635e6e2b688686d10b830c4747c4dc/scripts/build/.variables#L7
+    # Override the build version (ignoring commits from our patches).
+    # The assignment is from https://github.com/docker/cli/blob/e57b5f78/scripts/build/.variables#L7
     - name: Override CLI Version
       run: |
-        VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags | sed 's/^v//' 2>/dev/null)}
+        VERSION=${VERSION:-$(git describe --match 'v[0-9]*' --dirty='.m' --always --tags 2>/dev/null)}
         if [ -n "$VERSION" ] ; then
-          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "VERSION=${VERSION#v}-rd" >> $GITHUB_ENV
         fi
 
+    - name: Apply patches
+      run: |
+        set -o errexit
+        for patch in $(ls -1 ${GITHUB_WORKSPACE}/rancher-desktop-docker-cli/patches/*) ; do
+          git am "${patch}"
+        done
+      env:
+        GIT_AUTHOR_NAME: Rancher Desktop CI Automation
+        GIT_AUTHOR_EMAIL: nobody@rancherdesktop.io
+        GIT_COMMITTER_NAME: Rancher Desktop CI Automation
+        GIT_COMMITTER_EMAIL: nobody@rancherdesktop.io
+
     - name: Build darwin amd64
-      uses: docker/bake-action@v1
+      uses: docker/bake-action@v2.2.0
       with:
-        set: "binary.platform=darwin/amd64"
+        set: binary.platform=darwin/amd64
+        workdir: cli
 
     - name: Build darwin arm64
-      uses: docker/bake-action@v1
+      uses: docker/bake-action@v2.2.0
       with:
-        set: "binary.platform=darwin/arm64"
+        set: binary.platform=darwin/arm64
+        workdir: cli
 
-    - name: Build linux
-      uses: docker/bake-action@v1
+    - name: Build WSL amd64
+      uses: docker/bake-action@v2.2.0
       with:
-       set: "binary.platform=linux/amd64"
+        set: |
+          binary.platform=linux/amd64
+          binary.args.GO_LDFLAGS=-X github.com/docker/cli/cli/config/credentials.LinuxCredentialsStoreDefaultOverride=wincred.exe
+        workdir: cli
 
-    - name: Build on Windows
-      uses: docker/bake-action@v1
+    - run: mv ./build/docker-linux-amd64 ./build/docker-wsl-amd64
+
+    - name: Build linux amd64
+      uses: docker/bake-action@v2.2.0
       with:
-        set: "binary.platform=windows/amd64"
+        set: binary.platform=linux/amd64
+        workdir: cli
+
+    - name: Build windows amd64
+      uses: docker/bake-action@v2.2.0
+      with:
+        set: binary.platform=windows/amd64
+        workdir: cli
 
     - name:  Calculate Checksums
-      working-directory: "./build"
+      working-directory: cli/build
       run: sha256sum docker-* > sha256sum.txt
 
     - uses: actions/upload-artifact@v2
       name: Upload Darwin amd64 artifact
       with:
         name: docker-darwin-amd64
-        path: ./build/docker-darwin-amd64
+        path: cli/build/docker-darwin-amd64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
       name: Upload Darwin arm64 artifact
       with:
         name: docker-darwin-arm64
-        path: ./build/docker-darwin-arm64
+        path: cli/build/docker-darwin-arm64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
       name: Upload Linux artifact
       with:
         name: docker-linux-amd64
-        path: ./build/docker-linux-amd64
+        path: cli/build/docker-linux-amd64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
       name: Upload Windows artifact
       with:
         name: docker-windows-amd64
-        path: ./build/docker-windows-amd64.exe
+        path: cli/build/docker-windows-amd64.exe
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload WSL artifact
+      with:
+        name: docker-wsl-amd64
+        path: cli/build/docker-wsl-amd64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
       name: Upload checksums
       with:
         name: sha256sum.txt
-        path: ./build/sha256sum.txt
+        path: cli/build/sha256sum.txt
         if-no-files-found: error
 
     - name: Create draft release
+      if: startsWith(github.event.ref, 'refs/tags/')
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        ref: ${{ env.DOCKER_CLI_REF }}
       run: >-
         gh release create
-        "${ref}"
+        "${DOCKER_CLI_REF}"
         ./build/docker-*
         ./build/sha256sum.txt
         --draft
-        --title "${tag}"
-        --repo ${{ github.repository }}
+        --title "Docker CLI builds for docker ${{ github.ref_name }}"
+        --notes "Docker CLI builds for docker ${{ github.ref_name }}"
+        --repo "${{ github.repository }}"
