@@ -8,7 +8,7 @@ on:
       TAG:
         description: Docker CLI tag to build
         required: true
-        default: v24.0.2
+        default: v24.0.3
 
 defaults:
   run:
