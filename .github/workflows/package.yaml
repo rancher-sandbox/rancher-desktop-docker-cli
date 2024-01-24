@@ -33,7 +33,7 @@ jobs:
       working-directory: .
 
     - name: Set Docker CLI tag from inputs
-      if: inputs.TAG
+      if: github.event_name == 'workflow_dispatch'
       run: echo "DOCKER_CLI_REF=${{ inputs.TAG }}" >> "${GITHUB_ENV}"
       working-directory: .
 
