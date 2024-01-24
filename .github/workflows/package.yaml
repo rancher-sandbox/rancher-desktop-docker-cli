@@ -97,16 +97,38 @@ jobs:
 
     - run: mv ./build/docker-linux-amd64 ./build/docker-wsl-amd64
 
+    - name: Build WSL arm64
+      uses: docker/bake-action@v2.2.0
+      with:
+        set: |
+          binary.platform=linux/arm64
+          binary.args.GO_LDFLAGS=-X github.com/docker/cli/cli/config/credentials.LinuxCredentialsStoreDefaultOverride=wincred.exe
+        workdir: cli
+
+    - run: mv ./build/docker-linux-arm64 ./build/docker-wsl-arm64
+
     - name: Build linux amd64
       uses: docker/bake-action@v2.2.0
       with:
         set: binary.platform=linux/amd64
         workdir: cli
 
+    - name: Build linux arm64
+      uses: docker/bake-action@v2.2.0
+      with:
+        set: binary.platform=linux/arm64
+        workdir: cli
+
     - name: Build windows amd64
       uses: docker/bake-action@v2.2.0
       with:
         set: binary.platform=windows/amd64
+        workdir: cli
+
+    - name: Build windows arm64
+      uses: docker/bake-action@v2.2.0
+      with:
+        set: binary.platform=windows/arm64
         workdir: cli
 
     - name:  Calculate Checksums
@@ -128,24 +150,45 @@ jobs:
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
-      name: Upload Linux artifact
+      name: Upload Linux amd64 artifact
       with:
         name: docker-linux-amd64
         path: cli/build/docker-linux-amd64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
-      name: Upload Windows artifact
+      name: Upload Linux arm64 artifact
+      with:
+        name: docker-linux-arm64
+        path: cli/build/docker-linux-arm64
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload Windows amd64 artifact
       with:
         name: docker-windows-amd64
         path: cli/build/docker-windows-amd64.exe
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
-      name: Upload WSL artifact
+      name: Upload WSL amd64 artifact
       with:
         name: docker-wsl-amd64
         path: cli/build/docker-wsl-amd64
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload Windows arm64 artifact
+      with:
+        name: docker-windows-arm64
+        path: cli/build/docker-windows-arm64.exe
+        if-no-files-found: error
+
+    - uses: actions/upload-artifact@v2
+      name: Upload WSL arm64 artifact
+      with:
+        name: docker-wsl-arm64
+        path: cli/build/docker-wsl-arm64
         if-no-files-found: error
 
     - uses: actions/upload-artifact@v2
