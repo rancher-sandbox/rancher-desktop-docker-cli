@@ -38,16 +38,16 @@ jobs:
       working-directory: .
 
     - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      uses: docker/setup-buildx-action@v3
 
     - name: Check out build scripts
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         persist-credentials: false
         path: rancher-desktop-docker-cli
 
     - name: Check out docker/cli
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: docker/cli
         ref: ${{ env.DOCKER_CLI_REF }}
@@ -76,19 +76,19 @@ jobs:
         GIT_COMMITTER_EMAIL: nobody@rancherdesktop.io
 
     - name: Build darwin amd64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: binary.platform=darwin/amd64
         workdir: cli
 
     - name: Build darwin arm64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: binary.platform=darwin/arm64
         workdir: cli
 
     - name: Build WSL amd64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: |
           binary.platform=linux/amd64
@@ -98,7 +98,7 @@ jobs:
     - run: mv ./build/docker-linux-amd64 ./build/docker-wsl-amd64
 
     - name: Build WSL arm64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: |
           binary.platform=linux/arm64
@@ -108,25 +108,25 @@ jobs:
     - run: mv ./build/docker-linux-arm64 ./build/docker-wsl-arm64
 
     - name: Build linux amd64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: binary.platform=linux/amd64
         workdir: cli
 
     - name: Build linux arm64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: binary.platform=linux/arm64
         workdir: cli
 
     - name: Build windows amd64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: binary.platform=windows/amd64
         workdir: cli
 
     - name: Build windows arm64
-      uses: docker/bake-action@v2.2.0
+      uses: docker/bake-action@v4.3.0
       with:
         set: binary.platform=windows/arm64
         workdir: cli
@@ -135,63 +135,63 @@ jobs:
       working-directory: cli/build
       run: sha256sum docker-* > sha256sum.txt
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload Darwin amd64 artifact
       with:
         name: docker-darwin-amd64
         path: cli/build/docker-darwin-amd64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload Darwin arm64 artifact
       with:
         name: docker-darwin-arm64
         path: cli/build/docker-darwin-arm64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload Linux amd64 artifact
       with:
         name: docker-linux-amd64
         path: cli/build/docker-linux-amd64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload Linux arm64 artifact
       with:
         name: docker-linux-arm64
         path: cli/build/docker-linux-arm64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload Windows amd64 artifact
       with:
         name: docker-windows-amd64
         path: cli/build/docker-windows-amd64.exe
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload WSL amd64 artifact
       with:
         name: docker-wsl-amd64
         path: cli/build/docker-wsl-amd64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload Windows arm64 artifact
       with:
         name: docker-windows-arm64
         path: cli/build/docker-windows-arm64.exe
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload WSL arm64 artifact
       with:
         name: docker-wsl-arm64
         path: cli/build/docker-wsl-arm64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       name: Upload checksums
       with:
         name: sha256sum.txt
