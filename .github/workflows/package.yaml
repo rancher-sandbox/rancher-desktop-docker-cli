@@ -79,19 +79,19 @@ jobs:
         GIT_COMMITTER_EMAIL: nobody@rancherdesktop.io
 
     - name: Build darwin amd64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: binary.platform=darwin/amd64
         workdir: cli
 
     - name: Build darwin arm64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: binary.platform=darwin/arm64
         workdir: cli
 
     - name: Build WSL amd64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: |
           binary.platform=linux/amd64
@@ -101,7 +101,7 @@ jobs:
     - run: mv ./build/docker-linux-amd64 ./build/docker-wsl-amd64
 
     - name: Build WSL arm64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: |
           binary.platform=linux/arm64
@@ -111,25 +111,25 @@ jobs:
     - run: mv ./build/docker-linux-arm64 ./build/docker-wsl-arm64
 
     - name: Build linux amd64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: binary.platform=linux/amd64
         workdir: cli
 
     - name: Build linux arm64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: binary.platform=linux/arm64
         workdir: cli
 
     - name: Build windows amd64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: binary.platform=windows/amd64
         workdir: cli
 
     - name: Build windows arm64
-      uses: docker/bake-action@017aa056d6bfc9797de5a5dd354a209dc07b490e  # v4.3.0
+      uses: docker/bake-action@3acf805d94d93a86cce4ca44798a76464a75b88c  # v6.9.0
       with:
         set: binary.platform=windows/arm64
         workdir: cli
