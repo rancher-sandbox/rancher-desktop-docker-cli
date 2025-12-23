@@ -146,63 +146,63 @@ jobs:
       working-directory: cli/build
       run: sha256sum docker-* | tee sha256sum.txt
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload Darwin amd64 artifact
       with:
         name: docker-darwin-amd64
         path: cli/build/docker-darwin-amd64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload Darwin arm64 artifact
       with:
         name: docker-darwin-arm64
         path: cli/build/docker-darwin-arm64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload Linux amd64 artifact
       with:
         name: docker-linux-amd64
         path: cli/build/docker-linux-amd64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload Linux arm64 artifact
       with:
         name: docker-linux-arm64
         path: cli/build/docker-linux-arm64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload Windows amd64 artifact
       with:
         name: docker-windows-amd64
         path: cli/build/docker-windows-amd64.exe
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload WSL amd64 artifact
       with:
         name: docker-wsl-amd64
         path: cli/build/docker-wsl-amd64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload Windows arm64 artifact
       with:
         name: docker-windows-arm64
         path: cli/build/docker-windows-arm64.exe
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload WSL arm64 artifact
       with:
         name: docker-wsl-arm64
         path: cli/build/docker-wsl-arm64
         if-no-files-found: error
 
-    - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4  # v5.0.0
+    - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       name: Upload checksums
       with:
         name: sha256sum.txt
