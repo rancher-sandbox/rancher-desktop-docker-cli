@@ -82,15 +82,13 @@ jobs:
       uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7  # v7.0.0
       with:
         set: binary.platform=darwin/amd64
-        source: .
-        workdir: cli
+        source: cli
 
     - name: Build darwin arm64
       uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7  # v7.0.0
       with:
         set: binary.platform=darwin/arm64
-        source: .
-        workdir: cli
+        source: cli
 
     - name: Build WSL amd64
       uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7  # v7.0.0
@@ -98,8 +96,7 @@ jobs:
         set: |
           binary.platform=linux/amd64
           binary.args.GO_LDFLAGS=-X github.com/docker/cli/cli/config/credentials.LinuxCredentialsStoreDefaultOverride=wincred.exe
-        source: .
-        workdir: cli
+        source: cli
 
     - run: mv ./build/docker-linux-amd64 ./build/docker-wsl-amd64
 
@@ -109,8 +106,7 @@ jobs:
         set: |
           binary.platform=linux/arm64
           binary.args.GO_LDFLAGS=-X github.com/docker/cli/cli/config/credentials.LinuxCredentialsStoreDefaultOverride=wincred.exe
-        source: .
-        workdir: cli
+        source: cli
 
     - run: mv ./build/docker-linux-arm64 ./build/docker-wsl-arm64
 
@@ -118,29 +114,25 @@ jobs:
       uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7  # v7.0.0
       with:
         set: binary.platform=linux/amd64
-        source: .
-        workdir: cli
+        source: cli
 
     - name: Build linux arm64
       uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7  # v7.0.0
       with:
         set: binary.platform=linux/arm64
-        source: .
-        workdir: cli
+        source: cli
 
     - name: Build windows amd64
       uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7  # v7.0.0
       with:
         set: binary.platform=windows/amd64
-        source: .
-        workdir: cli
+        source: cli
 
     - name: Build windows arm64
       uses: docker/bake-action@82490499d2e5613fcead7e128237ef0b0ea210f7  # v7.0.0
       with:
         set: binary.platform=windows/arm64
-        source: .
-        workdir: cli
+        source: cli
 
     - name:  Calculate Checksums
       working-directory: cli/build
